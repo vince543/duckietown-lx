@@ -1,9 +1,24 @@
 from typing import Tuple
 
 import numpy as np
+import sys
+sys.path.append('../')
 
+def LeftEncoderCallback(left_encoder_msg):
+    
+    N_tot_left = left_encoder_msg.resolution # number of ticks per wheel revolution on the left wheel
+    ticks_left = left_encoder_msg.data # incremental count of ticks from the left encoder
+    
+    return N_tot_left, ticks_left
 
-def delta_phi(ticks: int, prev_ticks: int, resolution: int) -> Tuple[float, float]:
+def RightEncoderCallback(right_encoder_msg):
+    
+    N_tot_right = right_encoder_msg.resolution # number of ticks per wheel revolution on the left wheel
+    ticks_right = left_encoder_msg.data # incremental count of ticks from the left encoder
+    
+    return N_tot_right, ticks_right
+
+def delta_phi(ticks_left, N_tot_left, prev_ticks_left: int, ticks_right, N_tot_right, prev_ticks_right: int) -> Tuple[float, float, float, float]:
     """
     Args:
         ticks: Current tick count from the encoders.
@@ -13,12 +28,13 @@ def delta_phi(ticks: int, prev_ticks: int, resolution: int) -> Tuple[float, floa
         dphi: Rotation of the wheel in radians.
         ticks: current number of ticks.
     """
+    alpha_left = 2 * np.pi / N_tot_left # wheel rotation per tick in radians for the left wheel
+    dphi_left = alpha_left*(ticks_left-prev_ticks_left)
 
-    # TODO: these are random values, you have to implement your own solution in here
-    ticks = prev_ticks + int(np.random.uniform(0, 10))
-    dphi = np.random.random()
-    # ---
-    return dphi, ticks
+    alpha_right = 2 * np.pi / N_tot_right # wheel rotation per tick in radians for the right wheel
+    dphi_right = alpha_right*(ticks_right-prev_ticks_right)
+    
+    return dphi_left, ticks_left, dphi_right, ticks_right
 
 
 def pose_estimation(
@@ -50,9 +66,15 @@ def pose_estimation(
         theta_curr:              estimated heading
     """
 
-    # These are random values, replace with your own
-    x_curr = np.random.random()
-    y_curr = np.random.random()
-    theta_curr = np.random.random()
-    # ---
+    d_left = R*delta_phi_left       # distance traveled by left wheel since last time step
+    d_right = R*delta_phi_right     # distance traveled by right wheel since last time step
+
+    d_A = (d_left + d_right)/2                  # distance traveled by the middle of the duckiebot
+    delta_theta = (d_right-d_left)/baseline     # angle traveled since last time step
+
+    theta_curr = theta_prev + delta_theta       # total angle traveled
+    x_curr = x_prev + d_A*np.cos(theta_curr)    # current x-position
+    y_curr = y_prev + d_A*np.sin(theta_curr)    # current y-position
+    
+
     return x_curr, y_curr, theta_curr
