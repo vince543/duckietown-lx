@@ -4,21 +4,8 @@ import numpy as np
 import sys
 sys.path.append('../')
 
-def LeftEncoderCallback(left_encoder_msg):
-    
-    N_tot_left = left_encoder_msg.resolution # number of ticks per wheel revolution on the left wheel
-    ticks_left = left_encoder_msg.data # incremental count of ticks from the left encoder
-    
-    return N_tot_left, ticks_left
 
-def RightEncoderCallback(right_encoder_msg):
-    
-    N_tot_right = right_encoder_msg.resolution # number of ticks per wheel revolution on the left wheel
-    ticks_right = left_encoder_msg.data # incremental count of ticks from the left encoder
-    
-    return N_tot_right, ticks_right
-
-def delta_phi(ticks_left, N_tot_left, prev_ticks_left: int, ticks_right, N_tot_right, prev_ticks_right: int) -> Tuple[float, float, float, float]:
+def delta_phi(ticks: int, prev_ticks: int,resolution: int) -> Tuple[float, float]:
     """
     Args:
         ticks: Current tick count from the encoders.
@@ -28,13 +15,12 @@ def delta_phi(ticks_left, N_tot_left, prev_ticks_left: int, ticks_right, N_tot_r
         dphi: Rotation of the wheel in radians.
         ticks: current number of ticks.
     """
-    alpha_left = 2 * np.pi / N_tot_left # wheel rotation per tick in radians for the left wheel
-    dphi_left = alpha_left*(ticks_left-prev_ticks_left)
 
-    alpha_right = 2 * np.pi / N_tot_right # wheel rotation per tick in radians for the right wheel
-    dphi_right = alpha_right*(ticks_right-prev_ticks_right)
+
+    alpha= 2*np.pi/resolution # wheel rotation per tick in radians for the right wheel
+    dphi = alpha*(ticks-prev_ticks)
     
-    return dphi_left, ticks_left, dphi_right, ticks_right
+    return dphi, ticks
 
 
 def pose_estimation(
