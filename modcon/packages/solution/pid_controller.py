@@ -21,7 +21,7 @@ def PIDController(v_0, theta_ref, theta_hat, prev_e, prev_int, delta_t): #add th
         e_int (:double:) current integral error (automatically becomes prev_int at next iteration).
     """
     
-   # Tracking error
+    # Tracking error
     e = theta_ref - theta_hat
 
     # integral of the error
