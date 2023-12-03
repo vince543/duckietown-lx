@@ -55,6 +55,6 @@ def PIDController(
 
     # ---
 
-    print(f"\n\nDelta time : {delta_t} \nE : {np.rad2deg(e)} \nE int : {e_int} \nPrev e : {prev_e_y} \nU : {omega} \nTheta hat: {np.rad2deg(y_hat)} \n")
+    #print(f"\n\nDelta time : {delta_t} \nE : {np.rad2deg(e)} \nE int : {e_int} \nPrev e : {prev_e_y} \nU : {omega} \nTheta hat: {np.rad2deg(y_hat)} \n")
     
     return v_0, omega, e, e_int
